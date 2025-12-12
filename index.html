@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Spanish Practice — Flashcards & Quizzes</title>
+<style>
+  :root{
+    --bg:#b8dbff;
+    --card:#ffffffcc;
+    --accent:#1e90ff;   /* medium blue for primary buttons */
+    --accent-deep:#0d1f3c; /* deep blue for secondary buttons */
+    --muted:#555;
+    --radius:50px; /* pill shape */
+    font-family: 'Aptos Display', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    height:100%;
+    margin:0;
+    background:linear-gradient(180deg,#b8dbff 0%, #d6ecff 60%);
+    color:#061018;
+    position:relative;
+    overflow-x:hidden;
+    font-size:20px; /* base font size */
+  }
+
+  /* Clouds */
+  .cloud {
+    position: fixed;
+    opacity: 0.65;
+    z-index: -1;
+    user-select: none;
+    pointer-events: none;
+    will-change: transform;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  @keyframes drift {
+    0%   { transform: translateX(-30vw) translateY(0); }
+    50%  { transform: translateX(120vw) translateY(6px); }
+    100% { transform: translateX(-30vw) translateY(0); }
+  }
+
+  .cloud1 { top: 20px; width:120px; animation: drift 46s linear infinite; }
+  .cloud2 { top: 80px; width:180px; animation: drift 62s linear infinite; opacity:0.6; }
+  .cloud3 { top: 140px; width:150px; animation: drift 54s linear infinite; }
+  .cloud4 { top: 200px; width:200px; animation: drift 70s linear infinite; opacity:0.55; }
+  .cloud5 { top: 260px; width:130px; animation: drift 58s linear infinite; }
+  .cloud6 { top: 320px; width:170px; animation: drift 76s linear infinite; opacity:0.6; }
+  .cloud7 { top: 380px; width:140px; animation: drift 48s linear infinite; }
+  .cloud8 { top: 440px; width:160px; animation: drift 82s linear infinite; opacity:0.58; }
+
+  /* Container */
+  .container{max-width:1100px;margin:28px auto;padding:24px;position:relative;z-index:1;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  header h1{font-size:30px;margin:0} /* header bigger */
+  header .subtitle{color:var(--muted);font-size:16px}
+  .app{display:grid;grid-template-columns:260px 1fr;gap:20px}
+  nav{background:var(--card);padding:16px;border-radius:12px;min-height:420px}
+  nav button{display:block;width:100%;padding:14px 18px;margin-bottom:8px;border:2px solid transparent;border-radius:50px;cursor:pointer; font-size:1.2em; transition:0.3s;}
+  nav button.active{background:var(--accent);color:#fff;font-weight:600}
+  main{background:var(--card);padding:20px;border-radius:14px;min-height:420px}
+  .panel{display:none}
+  .panel.active{display:block}
+  .card{background:var(--card);padding:22px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,0.1)}
+  input[type=text], textarea, select{background:#fff;border:2px solid var(--accent-deep);color:var(--accent-deep);padding:12px;border-radius:50px;width:100%;font-size:1.1em}
+  .big{font-size:32px;font-weight:600}
+  .muted{color:var(--muted);font-size:14px}
+  .btn{
+    padding:14px 20px;
+    border-radius:50px;
+    border:0;
+    cursor:pointer;
+    font-size:1.1em;
+    transition:0.3s;
+    margin-right:6px;
+  }
+  .btn.primary{background:var(--accent); color:#fff}
+  .btn.primary:hover{opacity:0.9;}
+  .btn.ghost{background:#fff; color:var(--accent-deep); border:2px solid var(--accent-deep);}
+  .btn.ghost:hover{background:var(--accent-deep); color:#fff;}
+  .center{display:flex;align-items:center;justify-content:center}
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .choice{padding:14px;border-radius:50px;border:2px solid var(--accent-deep);cursor:pointer;background:#fff; color:var(--accent-deep); font-size:1.1em; transition:0.3s;}
+  .choice.correct{border-color:#1effaa;background:#ddffef;color:#061018}
+  .choice.wrong{border-color:#ff7171;background:#ffecec;color:#061018}
+  .small{font-size:14px;padding:8px 12px}
+  footer{margin-top:18px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+  <!-- Clouds -->
+  <img src="https://i.ibb.co/7QpKsCX/cloud.png" class="cloud cloud1" />
+  <img src="https://i.ibb.co/7QpKsCX/cloud.png" class="cloud cloud2" />
+  <img src="https://i.ibb.co/7QpKsCX/cloud.png" class="cloud cloud3" />
+  <img src="https://i.ibb.co/7QpKsCX/cloud.png" class="cloud cloud4" />
+  <img src="https://i.ibb.co/7QpKsCX/cloud.png" class="cloud cloud5" />
+  <img src="https://i.ibb.co/7QpKsCX/cloud.png" class="cloud cloud6" />
+  <img src="https://i.ibb.co/7QpKsCX/cloud.png" class="cloud cloud7" />
+  <img src="https://i.ibb.co/7QpKsCX/cloud.png" class="cloud cloud8" />
+
+  <div class="container">
+    <header>
+      <div>
+        <h1>Spanish Practice</h1>
+        <div class="subtitle">Flip + Check: Enter, New Words + Next: Shift</div>
+      </div>
+      <div class="muted">Built for practicing Spanish — open-source & offline</div>
+    </header>
+
+    <div class="app">
+      <nav class="card">
+        <button class="active" data-panel="flash">Flashcards</button>
+        <button data-panel="quiz">Quiz (Multiple Choice)</button>
+        <button data-panel="manage">Add / Manage Words</button>
+        <hr>
+        <button id="btn-import" class="btn ghost small">Import Words</button>
+        <button id="btn-export" class="btn ghost small">Export Words</button>
+      </nav>
+
+      <main>
+        <section id="flash" class="panel active">
+          <div class="card">
+            <div class="muted">Flashcard</div>
+            <div id="card-word" class="big">—</div>
+            <div id="card-translation" class="muted">—</div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button id="flip" class="btn ghost small">Flip</button>
+              <button id="next-card" class="btn primary small">Next</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="quiz" class="panel">
+          <div class="card">
+            <div class="muted">Multiple Choice Quiz</div>
+            <div style="margin-top:12px" class="choices" id="q-choices"></div>
+          </div>
+        </section>
+
+        <section id="manage" class="panel">
+          <div class="card">
+            <div class="muted">Add / Manage Words</div>
+            <input id="new-es" type="text" placeholder="Spanish" />
+            <input id="new-en" type="text" placeholder="English" />
+            <button id="add-word" class="btn primary">Add</button>
+            <textarea id="quick-import" rows="5" placeholder="Paste words: hola, hello"></textarea>
+            <button id="apply-quick" class="btn primary small">Import Multiple</button>
+            <div id="words-list" style="margin-top:12px;"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+<script>
+let state = {words:[], sessions:0};
+const STORAGE_KEY = 'spanish_practice_v2';
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderWords(); }
+function loadState(){ const raw=localStorage.getItem(STORAGE_KEY); if(raw) try{ state=JSON.parse(raw); }catch(e){ state = {words:[], sessions:0}; } }
+loadState();
+
+document.querySelectorAll('nav button[data-panel]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('nav button[data-panel]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById(b.dataset.panel).classList.add('active');
+  });
+});
+
+let flashIndex = 0;
+function renderFlash(){
+  if(!state.words.length){ document.getElementById('card-word').innerText='—'; document.getElementById('card-translation').innerText='—'; return; }
+  const w = state.words[flashIndex % state.words.length];
+  document.getElementById('card-word').innerText=w.es;
+  document.getElementById('card-translation').innerText=w.en;
+}
+document.getElementById('flip').addEventListener('click', ()=>{
+  let t=document.getElementById('card-word').innerText;
+  document.getElementById('card-word').innerText=document.getElementById('card-translation').innerText;
+  document.getElementById('card-translation').innerText=t;
+});
+document.getElementById('next-card').addEventListener('click', ()=>{ flashIndex++; renderFlash(); });
+
+function renderWords(){ const list=document.getElementById('words-list'); list.innerHTML=''; state.words.forEach((w,i)=>{ const div=document.createElement('div'); div.innerText=w.es+' → '+w.en; list.appendChild(div); }); renderFlash(); }
+document.getElementById('add-word').addEventListener('click', ()=>{
+  const es=document.getElementById('new-es').value.trim(), en=document.getElementById('new-en').value.trim(); if(!es||!en)return;
+  state.words.push({es,en}); saveState(); document.getElementById('new-es').value=''; document.getElementById('new-en').value='';
+});
+document.getElementById('apply-quick').addEventListener('click', ()=>{
+  const lines=document.getElementById('quick-import').value.split('\n'); lines.forEach(l=>{ const p=l.split(','); if(p.length>=2) state.words.push({es:p[0].trim(), en:p[1].trim()}); }); saveState(); document.getElementById('quick-import').value='';
+});
+
+document.getElementById('btn-export').addEventListener('click', ()=>{
+  const blob=new Blob([JSON.stringify(state.words,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='words.json'; a.click();
+});
+document.getElementById('btn-import').addEventListener('click', ()=>{
+  const file=document.createElement('input'); file.type='file'; file.accept='application/json'; file.onchange=e=>{
+    const f=e.target.files[0]; if(!f)return;
+    const reader=new FileReader(); reader.onload=ev=>{ try{ const arr=JSON.parse(ev.target.result); if(Array.isArray(arr)){ arr.forEach(w=>{ if(w.es && w.en) state.words.push(w); }); saveState(); } }catch(err){ alert('Invalid JSON'); } };
+    reader.readAsText(f);
+  }; file.click();
+});
+
+renderWords();
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ 
+    if(document.getElementById('flash').classList.contains('active')) document.getElementById('flip').click();
+  }
+  if(e.key==='Shift'){ 
+    if(document.getElementById('flash').classList.contains('active')) document.getElementById('next-card').click();
+  }
+});
+</script>
+</body>
+</html>
