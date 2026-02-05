@@ -5,22 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Spanish Practice — Dynamic Fill-in-the-Blank</title>
 <style>
-@import url('https://fonts.cdnfonts.com/css/nokken-deep');
-
-:root{
-  --bg:#e6f6ff;
-  --card:#ffffffcc;
-  --accent:#3f84ff;
-  --muted:#4b5563;
-  --radius:18px;
-  font-family:'Nokken Deep', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:#061018;font-size:16px;}
-.container{display:flex;max-width:1200px;margin:0 auto;padding:24px;height:100vh;}
-nav{background:var(--card);padding:16px;border-radius:var(--radius);min-width:220px;display:flex;flex-direction:column;gap:8px;}
-nav button{padding:12px;border-radius:40px;border:0;background:var(--accent);color:white;cursor:pointer;font-weight:600;text-align:left;}
-nav button.active{background:#2b63b8;}
 :root{
   --bg:#e6f6ff;
   --card:#ffffffcc;
@@ -31,7 +15,7 @@ nav button.active{background:#2b63b8;}
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:#061018;font-size:16px;font-family:'Aharoni', 'Arial Black', Arial, sans-serif;}
-body{position:relative;overflow:hidden;}
+body{position:relative;overflow-x:hidden;overflow-y:auto;}
 .sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
 .cloud{position:absolute;background:#ffffffd6;border-radius:999px;filter:drop-shadow(0 8px 12px rgba(30, 70, 120, 0.12));animation:drift 11s ease-in-out infinite alternate;}
 .cloud::before,.cloud::after{content:'';position:absolute;background:#ffffffd6;border-radius:999px;}
@@ -45,7 +29,7 @@ body{position:relative;overflow:hidden;}
   from{transform:translateX(-28px);}
   to{transform:translateX(28px);}
 }
-.container{position:relative;z-index:1;display:flex;max-width:1200px;margin:0 auto;padding:24px;height:100vh;}
+.container{position:relative;z-index:1;display:flex;max-width:1200px;margin:0 auto;padding:24px;min-height:100vh;}
 nav{background:var(--card);padding:16px;border-radius:var(--radius);min-width:220px;display:flex;flex-direction:column;gap:8px;}
 nav button{padding:16px 20px;border-radius:999px;border:0;background:var(--accent);color:white;cursor:pointer;font-weight:600;text-align:left;font-size:16px;}
 nav button.active{background:#2b63b8;}
@@ -56,13 +40,11 @@ main{flex:1;margin-left:20px;display:flex;flex-direction:column;gap:16px;}
 input[type=text], textarea, select{background:#fff;border:1px solid rgba(0,0,0,0.06);padding:10px;border-radius:10px;width:100%;}
 .big{font-size:32px;font-weight:700;text-align:center;margin:8px 0;}
 .muted{color:var(--muted);font-size:14px;text-align:center;margin:6px 0;}
-.btn{padding:10px 14px;border-radius:28px;border:0;cursor:pointer;margin:6px;}
 .btn{padding:14px 24px;border-radius:999px;border:0;cursor:pointer;margin:6px;font-size:16px;}
 .btn.primary{background:var(--accent);color:#fff;font-weight:600;}
 .btn.ghost{background:#fff;border:1px solid rgba(0,0,0,0.06);}
 .center{display:flex;align-items:center;justify-content:center;gap:8px;}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
-.choice{padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;background:#fff;text-align:center;}
 .choice{padding:16px;border-radius:999px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;background:#fff;text-align:center;}
 .choice.correct{background:#e6ffef;border-color:#36d08f;}
 .choice.wrong{background:#ffecec;border-color:#ff7b7b;}
@@ -72,10 +54,12 @@ hr{border:none;border-top:1px solid rgba(0,0,0,0.04);margin:12px 0;}
 .form-row{display:flex;gap:8px;margin-top:8px;}
 .form-row > * {flex:1;}
 .banner{background:#3f84ff;color:white;padding:10px 14px;border-radius:12px;text-align:center;margin-bottom:12px;font-size:14px;}
+button, input, textarea, select{font-family:inherit;}
+@media (prefers-reduced-motion: reduce){
+  .cloud{animation:none;}
+}
 </style>
 </head>
-<body>
-<div class="container">
 <body>
 <div class="sky" aria-hidden="true">
   <div class="cloud cloud-one"></div>
@@ -109,5 +93,298 @@ hr{border:none;border-top:1px solid rgba(0,0,0,0.04);margin:12px 0;}
       <div class="card">
         <div id="card-word" class="big">—</div>
         <div class="center">
+          <button id="flip" class="btn primary">Flip</button>
+          <button id="next-card" class="btn ghost">Next</button>
+        </div>
+        <div id="card-info" class="muted"></div>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="quiz" class="panel">
+      <div class="card">
+        <div class="muted">Choose the correct English meaning for the Spanish word shown below:</div>
+        <div id="quiz-word" class="big">—</div>
+        <div id="q-choices" class="choices"></div>
+        <div id="quiz-feedback" class="muted"></div>
+      </div>
+    </section>
+
+    <!-- FILL-IN-THE-BLANK -->
+    <section id="fill" class="panel">
+      <div class="card">
+        <div class="muted">Complete the sentence with the correct Spanish word:</div>
+        <div id="fill-sentence" class="big">—</div>
+        <input id="fill-answer" type="text" placeholder="Type the Spanish word here" />
+        <div class="center">
+          <button id="fill-check" class="btn primary">Check</button>
+          <button id="fill-skip" class="btn ghost">Skip / Next</button>
+        </div>
+        <div id="fill-feedback" class="muted"></div>
+        <div id="fill-wordbank" class="wordbank"></div>
+      </div>
+    </section>
+
+    <!-- MANAGE WORDS -->
+    <section id="manage" class="panel">
+      <div class="card">
+        <div class="muted">Add a single word</div>
+        <div class="form-row">
+          <input id="new-es" type="text" placeholder="Spanish (e.g. miente)" />
+          <select id="new-pos">
+            <option value="verb">verb</option>
+            <option value="noun">noun</option>
+            <option value="adjective">adjective</option>
+            <option value="adverb">adverb</option>
+            <option value="conjunction">conjunction</option>
+            <option value="article">article</option>
+          </select>
+          <input id="new-en" type="text" placeholder="English meaning (e.g. lies)" />
+        </div>
+        <div class="center">
+          <button id="add-word" class="btn primary">Add word</button>
+        </div>
+        <hr />
+        <div class="muted">Quick import (one per line): <code>spanish,pos,english</code></div>
+        <textarea id="quick-import" rows="6" placeholder="miente,verb,lies"></textarea>
+        <div class="center">
+          <button id="apply-quick" class="btn primary">Import multiple</button>
+        </div>
+        <hr />
+        <div class="muted">Word list</div>
+        <div id="words-list" style="margin-top:8px;max-height:200px;overflow:auto"></div>
+        <div class="center">
+          <button id="clear-words" class="btn ghost">Clear all</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+// ---------- STORAGE ----------
+const STORAGE_KEY = 'spanish_practice_dynamic_v2';
+let state = { words: [], usedFill: {}, fillOrder: [], sessions: 0 };
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderWords(); }
+function loadState(){ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ try{ state = JSON.parse(raw); }catch(e){ state = {words:[], usedFill:{}, fillOrder:[], sessions:0}; } } }
+loadState();
+
+// ---------- HELPERS ----------
+function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr; }
+
+// ---------- NAVIGATION ----------
+document.querySelectorAll('nav button[data-panel]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('nav button[data-panel]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById(b.dataset.panel).classList.add('active');
+    if(b.dataset.panel==='quiz') renderQuiz();
+    if(b.dataset.panel==='fill') renderFill();
+  });
+});
+
+// ---------- FLASHCARDS ----------
+let flashIndex=0;
+function renderFlash(){
+  const el=document.getElementById('card-word');
+  const info=document.getElementById('card-info');
+  if(!state.words.length){ el.innerText='—'; info.innerText='Add words to get started'; return; }
+  const w=state.words[flashIndex % state.words.length];
+  el.innerText=w.es;
+  info.innerText=`${w.pos} • Flashcard ${flashIndex+1}/${state.words.length}`;
+}
+document.getElementById('flip').addEventListener('click', ()=>{
+  const w=state.words[flashIndex % state.words.length];
+  document.getElementById('card-word').innerText=w.en;
+});
+document.getElementById('next-card').addEventListener('click', ()=>{ flashIndex++; renderFlash(); });
+
+// ---------- QUIZ ----------
+let quizIndex=0;
+function renderQuiz(){
+  const qWord=document.getElementById('quiz-word');
+  const choicesEl=document.getElementById('q-choices');
+  const feedback=document.getElementById('quiz-feedback');
+  choicesEl.innerHTML=''; feedback.innerText='';
+  if(!state.words.length){ qWord.innerText='—'; feedback.innerText='Add words to play the quiz'; return; }
+  const w=state.words[quizIndex%state.words.length]; qWord.innerText=w.es;
+  let options=[w.en];
+  const available=state.words.map(x=>x.en).filter(x=>x!==w.en);
+  shuffle(available); for(let i=0;i<available.length && options.length<4;i++) options.push(available[i]);
+  options=shuffle(options);
+  options.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='choice btn ghost'; btn.innerText=opt;
+    btn.addEventListener('click', ()=>{
+      if(opt===w.en){ btn.classList.add('correct'); feedback.innerText='✅ Correct!'; }
+      else { btn.classList.add('wrong'); feedback.innerText=`❌ Incorrect — correct: ${w.en}`; }
+      quizIndex++; setTimeout(renderQuiz,900);
+    });
+    choicesEl.appendChild(btn);
+  });
+}
+
+// ---------- FILL-IN-THE-BLANK ----------
+function generateSentenceFor(word){
+  const pos=(word.pos||'noun').toLowerCase();
+  const templates={
+    verb:[
+      `La niña ______ mucho y sus padres están enojados con ella.`,
+      `Después de la discusión, él decidió ______ para resolver el problema.`,
+      `Cuando hace frío, ellos prefieren ______ dentro de la casa.`,
+      `Para mantenerse sano, ella suele ______ todas las mañanas.`
+    ],
+    noun:[
+      `Ayer compré una ______ en la tienda del centro.`,
+      `La ______ que vimos en el museo era muy antigua.`,
+      `Pon la ______ sobre la mesa, por favor.`,
+      `En la biblioteca encontré una ______ muy interesante.`
+    ],
+    adjective:[
+      `El día estuvo muy ______ por la lluvia continua.`,
+      `Su actitud fue ______ durante toda la reunión.`,
+      `Nos pareció una película ______ y entretenida.`,
+      `La comida estaba ______ y todos la disfrutaron.`
+    ],
+    adverb:[
+      `Ella habló ______ durante la presentación.`,
+      `Llegó ______ a la cita y nadie notó la diferencia.`,
+      `El auto pasó ______ por la calle principal.`,
+      `Trabaja ______ para terminar los proyectos a tiempo.`
+    ],
+    conjunction:[
+      `No quiero salir, ______ tengo que terminar la tarea.`,
+      `Él quería ir, ______ ella prefirió quedarse en casa.`,
+      `Trae tu cuaderno, ______ toma notas durante la clase.`,
+      `Ella no vino, ______ nadie entendió el motivo.`
+    ],
+    article:[
+      `Por favor, pásame ______ que está sobre la mesa.`,
+      `¿Has visto ______ en esta foto?`,
+      `Guarda ______ en un lugar seguro.`,
+      `Necesito ______ antes de continuar.`
+    ]
+  };
+  const pool=templates[pos]||templates['noun'];
+  return pickRandom(pool);
+}
+function ensureFillOrder(){
+  if(!state.fillOrder||state.fillOrder.length===0){
+    state.fillOrder=state.words.map((w,i)=>i);
+    shuffle(state.fillOrder); state.usedFill={};
+  }
+}
+function renderFill(){
+  if(!state.words.length){ document.getElementById('fill-sentence').innerText='—'; document.getElementById('fill-feedback').innerText='Add words to practice.'; return; }
+  ensureFillOrder();
+  if(state.fillOrder.length===0) ensureFillOrder();
+  const idx=state.fillOrder.shift(); state.currentFillIndex=idx;
+  const w=state.words[idx];
+  const sentence=generateSentenceFor(w);
+  document.getElementById('fill-sentence').innerText=sentence;
+  document.getElementById('fill-answer').value=''; document.getElementById('fill-feedback').innerText='';
+  const bank=document.getElementById('fill-wordbank'); bank.innerHTML='';
+  let options=[w.es];
+  const pool=state.words.map(x=>x.es).filter(s=>s.toLowerCase()!==w.es.toLowerCase());
+  shuffle(pool); for(let i=0;i<pool.length && options.length<4;i++){ if(!options.includes(pool[i])) options.push(pool[i]); }
+  shuffle(options).forEach(opt=>{
+    const b=document.createElement('button'); b.className='btn ghost small'; b.innerText=opt;
+    b.addEventListener('click', ()=>{ document.getElementById('fill-answer').value=opt; });
+    bank.appendChild(b);
+  });
+}
+document.getElementById('fill-check').addEventListener('click', ()=>{
+  if(state.currentFillIndex===undefined){ document.getElementById('fill-feedback').innerText='Nothing loaded.'; return; }
+  const w=state.words[state.currentFillIndex]; const ans=document.getElementById('fill-answer').value.trim();
+  const feedbackEl=document.getElementById('fill-feedback');
+  if(ans.toLowerCase()===w.es.toLowerCase()){
+    feedbackEl.innerText=`✅ Correct! (${w.es} — ${w.en})`;
+    setTimeout(()=>{ renderFill(); },700);
+  } else { feedbackEl.innerText='❌ Incorrect — try again.'; }
+});
+document.getElementById('fill-skip').addEventListener('click', ()=>{ renderFill(); });
+
+// ---------- ADD / IMPORT / EXPORT ----------
+function renderWords(){
+  const list=document.getElementById('words-list'); list.innerHTML='';
+  if(!state.words.length){ list.innerHTML='<div class="muted">No words yet — add or import.</div>'; return; }
+  state.words.forEach((w,i)=>{
+    const row=document.createElement('div');
+    row.style.padding='6px 4px'; row.style.borderBottom='1px solid rgba(0,0,0,0.03)';
+    row.innerHTML=`<strong>${w.es}</strong> <span class="small muted">(${w.pos})</span> — ${w.en}`;
+    list.appendChild(row);
+  });
+}
+document.getElementById('add-word').addEventListener('click', ()=>{
+  const es=document.getElementById('new-es').value.trim();
+  const pos=document.getElementById('new-pos').value.trim().toLowerCase();
+  const en=document.getElementById('new-en').value.trim();
+  if(!es||!pos||!en){ alert('Enter Spanish, POS, and English meaning'); return; }
+  state.words.push({es,en,pos}); saveState(); document.getElementById('new-es').value=''; document.getElementById('new-en').value=''; ensureFillOrder();
+});
+document.getElementById('apply-quick').addEventListener('click', ()=>{
+  const text=document.getElementById('quick-import').value.trim();
+  if(!text) return; const lines=text.split('\n').map(l=>l.trim()).filter(Boolean); let added=0;
+  lines.forEach(line=>{
+    const parts=line.split(',').map(p=>p.trim());
+    if(parts.length>=3){
+      const [es,pos,en]=parts; if(es&&pos&&en && ['verb','noun','adjective','adverb','conjunction','article'].includes(pos.toLowerCase())){ state.words.push({es,en,pos:pos.toLowerCase()}); added++; }
+    }
+  });
+  if(added) saveState(); document.getElementById('quick-import').value=''; alert(`${added} words imported`);
+});
+document.getElementById('btn-import').addEventListener('click', ()=>{
+  const f=document.createElement('input'); f.type='file'; f.accept='application/json';
+  f.onchange=(e)=>{
+    const file=e.target.files[0]; if(!file) return; const r=new FileReader();
+    r.onload=(ev)=>{
+      try{
+        const arr=JSON.parse(ev.target.result); if(Array.isArray(arr)){ let added=0;
+          arr.forEach(item=>{ if(item.es && item.en && item.pos){ state.words.push({es:item.es,en:item.en,pos:item.pos.toLowerCase()}); added++; } });
+          if(added) saveState(); alert(`Imported ${added} words from file`); 
+        } else alert('Invalid JSON'); 
+      }catch(err){ alert('Failed to parse JSON'); }
+    };
+    r.readAsText(file);
+  };
+  f.click();
+});
+document.getElementById('btn-export').addEventListener('click', ()=>{
+  const blob=new Blob([JSON.stringify(state.words,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='spanish_words.json'; a.click();
+});
+document.getElementById('clear-words').addEventListener('click', ()=>{
+  if(!confirm('Clear all words? This cannot be undone.')) return;
+  state.words=[]; state.fillOrder=[]; state.usedFill={}; saveState();
+});
+
+// ---------- INITIALIZE ----------
+function init(){
+  if(state.words.length===0){
+    const sample=[
+      {es:'miente',en:'lies',pos:'verb'},
+      {es:'libro',en:'book',pos:'noun'},
+      {es:'feliz',en:'happy',pos:'adjective'},
+      {es:'rápidamente',en:'quickly',pos:'adverb'},
+      {es:'y',en:'and',pos:'conjunction'}
+    ]; state.words=sample.slice(); saveState();
+  }
+  ensureFillOrder(); renderWords(); renderFlash(); renderQuiz(); renderFill();
+}
+init();
+
+// ---------- KEYBOARD SHORTCUTS ----------
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){ if(document.getElementById('flash').classList.contains('active')) document.getElementById('flip').click(); if(document.getElementById('fill').classList.contains('active')) document.getElementById('fill-check').click(); }
+  if(e.key==='Shift'){ if(document.getElementById('flash').classList.contains('active')) document.getElementById('next-card').click(); if(document.getElementById('fill').classList.contains('active')) document.getElementById('fill-skip').click(); }
+});
+</script>
+</body>
+</html>
+
+
+
 
 
